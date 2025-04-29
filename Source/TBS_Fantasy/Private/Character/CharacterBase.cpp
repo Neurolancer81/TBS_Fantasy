@@ -9,9 +9,11 @@ ACharacterBase::ACharacterBase()
 	PrimaryActorTick.bCanEverTick = false;
 
 	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
-	Shield = CreateDefaultSubobject<USkeletalMeshComponent>("Shield");
-	
+	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Weapon->SetupAttachment(GetMesh(), FName(TEXT("RHMeleeWeaponSocket")));
+
+	Shield = CreateDefaultSubobject<USkeletalMeshComponent>("Shield");
+	Shield->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Shield->SetupAttachment(GetMesh(), FName(TEXT("LHShieldSocket")));
 }
 

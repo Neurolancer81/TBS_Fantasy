@@ -1,19 +1,19 @@
 // Copyright NeuroGames
 
 
-#include "Game/PlayerControllers/ExplorationPlayerController.h"
+#include "Game/PlayerControllers/TBSPlayerController.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
 #include "InputAction.h"
 #include "Pawn/CameraPawn.h"
 
-AExplorationPlayerController::AExplorationPlayerController()
+ATBSPlayerController::ATBSPlayerController()
 {
 	bReplicates = true;
 }
 
-void AExplorationPlayerController::SetupInputComponent()
+void ATBSPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
@@ -21,15 +21,15 @@ void AExplorationPlayerController::SetupInputComponent()
 
 	// Bind Actions
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered,
-		this, &AExplorationPlayerController::Move);
+		this, &ATBSPlayerController::Move);
 	EnhancedInputComponent->BindAction(RotateAction, ETriggerEvent::Triggered,
-		this, &AExplorationPlayerController::Rotate);
+		this, &ATBSPlayerController::Rotate);
 	EnhancedInputComponent->BindAction(ZoomAction, ETriggerEvent::Triggered,
-		this, &AExplorationPlayerController::Zoom);
+		this, &ATBSPlayerController::Zoom);
 	
 }
 
-void AExplorationPlayerController::BeginPlay()
+void ATBSPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	check(InputMappingContext);
@@ -47,7 +47,7 @@ void AExplorationPlayerController::BeginPlay()
 	
 }
 
-void AExplorationPlayerController::Move(const FInputActionValue& InputActionValue)
+void ATBSPlayerController::Move(const FInputActionValue& InputActionValue)
 {
 	const FVector2D InputAxisVector = InputActionValue.Get<FVector2D>();
 	const FRotator Rotation = GetControlRotation();
@@ -63,7 +63,7 @@ void AExplorationPlayerController::Move(const FInputActionValue& InputActionValu
 	}
 }
 
-void AExplorationPlayerController::Rotate(const FInputActionValue& InputActionValue)
+void ATBSPlayerController::Rotate(const FInputActionValue& InputActionValue)
 {
 	if (!bCanRotate) return;
 	
@@ -76,7 +76,7 @@ void AExplorationPlayerController::Rotate(const FInputActionValue& InputActionVa
 	}
 }
 
-void AExplorationPlayerController::Zoom(const FInputActionValue& InputActionValue)
+void ATBSPlayerController::Zoom(const FInputActionValue& InputActionValue)
 {
 	const float Input = InputActionValue.Get<float>();
 	if(ACameraPawn* ControlledPawn = GetPawn<ACameraPawn>())

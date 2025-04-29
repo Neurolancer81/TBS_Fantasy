@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "ExplorationPlayerController.generated.h"
+#include "TBSPlayerController.generated.h"
 
 class UInputMappingContext;
 class UInputAction;
@@ -15,13 +15,15 @@ struct FInputActionValue;
  * 
  */
 UCLASS()
-class TBS_FANTASY_API AExplorationPlayerController : public APlayerController
+class TBS_FANTASY_API ATBSPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
 public:
-	AExplorationPlayerController();
-	virtual void SetupInputComponent() override;	
+	ATBSPlayerController();
+	virtual void SetupInputComponent() override;
+
+protected:	
 	virtual void BeginPlay() override;
 
 private:
