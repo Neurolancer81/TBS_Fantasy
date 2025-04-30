@@ -9,6 +9,7 @@
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
+class IEnemyInterface;
 
 
 /**
@@ -22,6 +23,7 @@ class TBS_FANTASY_API ATBSPlayerController : public APlayerController
 public:
 	ATBSPlayerController();
 	virtual void SetupInputComponent() override;
+	virtual void PlayerTick(float DeltaTime) override;
 
 protected:	
 	virtual void BeginPlay() override;
@@ -55,12 +57,13 @@ private:
 	UPROPERTY(EditAnywhere, Category = Input)
 	float RotateSpeed = 100.0f;
 
-	
-
 	void Move(const FInputActionValue& InputActionValue);
 	void Rotate(const FInputActionValue& InputActionValue);
 	void Zoom(const FInputActionValue& InputActionValue);
 	
-		
+	void CursorTrace();
+
+	TScriptInterface<IEnemyInterface> LastActor;
+	TScriptInterface<IEnemyInterface> ThisActor;
 	
 };

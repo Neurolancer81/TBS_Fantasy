@@ -6,6 +6,7 @@
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
 #include "InputAction.h"
+#include "Interaction/EnemyInterface.h"
 #include "Pawn/CameraPawn.h"
 
 ATBSPlayerController::ATBSPlayerController()
@@ -27,6 +28,13 @@ void ATBSPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(ZoomAction, ETriggerEvent::Triggered,
 		this, &ATBSPlayerController::Zoom);
 	
+}
+
+void ATBSPlayerController::PlayerTick(float DeltaTime)
+{
+	Super::PlayerTick(DeltaTime);
+
+	CursorTrace();
 }
 
 void ATBSPlayerController::BeginPlay()
@@ -87,4 +95,61 @@ void ATBSPlayerController::Zoom(const FInputActionValue& InputActionValue)
 	}
 	
 	
+}
+
+void ATBSPlayerController::CursorTrace()
+{
+	FHitResult CursorHit;
+	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
+	if (!CursorHit.bBlockingHit) return;
+
+	LastActor = ThisActor;
+	ThisActor = CursorHit.GetActor();
+
+	/**
+	 * Case A: LastActor is null and ThisActor is Null
+	 *		-> Do Nothing
+	 * Case B: LastActor is null and ThisActor is valid
+	 *		-> Highlight this actor
+	 * Case C: LastActor is Valid and ThisActor is null
+	 *		-> UnHighlight LastActor
+	 *	Case D: Both Actors are valid but they are not the same
+	 *		-> UnHighlight LastActor and Highlight ThisActor
+	 *	Case E: Both Actors are valid and they are the same
+	 *		-> Do Nothing	
+	 * **/
+
+	if (LastActor == nullptr)
+	{
+		if (ThisActor == nullptr)
+		{
+			// Case A: Do Nothing
+		}
+		else
+		{
+			// Case B: Highlight this actor
+			ThisActor->HighlightActor();
+		}		
+	}
+	else
+	{
+		if (ThisActor == nullptr)
+		{
+			//Case C: Unhighlight last actor
+			LastActor->UnHighlightActor();
+		}
+		else
+		{
+			if (LastActor != ThisActor)
+			{
+				// Case D: UnHighlight LastActor and Highlight ThisActor
+				LastActor->UnHighlightActor();
+				ThisActor->HighlightActor();
+			}
+			else
+			{
+				// Case E: Do nothing
+			}
+		}
+	}
 }

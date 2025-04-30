@@ -17,6 +17,11 @@ ACharacterBase::ACharacterBase()
 	Shield->SetupAttachment(GetMesh(), FName(TEXT("LHShieldSocket")));
 }
 
+UAbilitySystemComponent* ACharacterBase::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
+}
+
 void ACharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
