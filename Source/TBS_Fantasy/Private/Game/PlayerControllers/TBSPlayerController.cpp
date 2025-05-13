@@ -7,6 +7,7 @@
 #include "InputActionValue.h"
 #include "InputAction.h"
 #include "Interaction/EnemyInterface.h"
+#include "Interaction/PawnSelectionInterface.h"
 #include "Pawn/CameraPawn.h"
 
 ATBSPlayerController::ATBSPlayerController()
@@ -45,9 +46,10 @@ void ATBSPlayerController::BeginPlay()
 	UEnhancedInputLocalPlayerSubsystem* Subsystem =
 		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 
-	check(Subsystem);
-
-	Subsystem->AddMappingContext(InputMappingContext, 0);
+	if(Subsystem)
+	{
+		Subsystem->AddMappingContext(InputMappingContext, 0);	
+	}	
 
 	// Cursor mode setup
 	bShowMouseCursor = true;
@@ -97,54 +99,70 @@ void ATBSPlayerController::Zoom(const FInputActionValue& InputActionValue)
 	
 }
 
+void ATBSPlayerController::Possess(const FInputActionValue& InputActionValue)
+{
+	FHitResult HitResult;
+	GetHitResultUnderCursor(ECC_Visibility, false, HitResult);
+	if (!HitResult.bBlockingHit) return;
+
+	LastSelectedActor = ThisSelectedActor;
+	ThisSelectedActor = HitResult.GetActor();
+
+	if (ThisSelectedActor != nullptr)
+	{
+		ThisSelectedActor->SelectPawn(this);
+	}
+	
+}
+
 void ATBSPlayerController::CursorTrace()
 {
 	FHitResult CursorHit;
 	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
 	if (!CursorHit.bBlockingHit) return;
 
-	LastActor = ThisActor;
-	ThisActor = CursorHit.GetActor();
+	LastEnemyActor = ThisEnemyActor;
+	ThisEnemyActor = CursorHit.GetActor();
 
 	/**
-	 * Case A: LastActor is null and ThisActor is Null
+	 * Case A: LastEnemyActor is null and ThisEnemyActor is Null
 	 *		-> Do Nothing
-	 * Case B: LastActor is null and ThisActor is valid
+	 * Case B: LastEnemyActor is null and ThisEnemyActor is valid
 	 *		-> Highlight this actor
-	 * Case C: LastActor is Valid and ThisActor is null
-	 *		-> UnHighlight LastActor
+	 * Case C: LastEnemyActor is Valid and ThisEnemyActor is null
+	 *		-> UnHighlight LastEnemyActor
 	 *	Case D: Both Actors are valid but they are not the same
-	 *		-> UnHighlight LastActor and Highlight ThisActor
+	 *		-> UnHighlight LastEnemyActor and Highlight ThisEnemyActor
 	 *	Case E: Both Actors are valid and they are the same
 	 *		-> Do Nothing	
 	 * **/
 
-	if (LastActor == nullptr)
+	if (LastEnemyActor == nullptr)
 	{
-		if (ThisActor == nullptr)
+		if (ThisEnemyActor == nullptr)
 		{
 			// Case A: Do Nothing
 		}
 		else
 		{
 			// Case B: Highlight this actor
-			ThisActor->HighlightActor();
+			ThisEnemyActor->HighlightActor();
 		}		
 	}
 	else
 	{
-		if (ThisActor == nullptr)
+		if (ThisEnemyActor == nullptr)
 		{
 			//Case C: Unhighlight last actor
-			LastActor->UnHighlightActor();
+			LastEnemyActor->UnHighlightActor();
 		}
 		else
 		{
-			if (LastActor != ThisActor)
+			if (LastEnemyActor != ThisEnemyActor)
 			{
-				// Case D: UnHighlight LastActor and Highlight ThisActor
-				LastActor->UnHighlightActor();
-				ThisActor->HighlightActor();
+				// Case D: UnHighlight LastEnemyActor and Highlight ThisEnemyActor
+				LastEnemyActor->UnHighlightActor();
+				ThisEnemyActor->HighlightActor();
 			}
 			else
 			{

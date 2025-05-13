@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "TBSPlayerController.generated.h"
 
+class IPawnSelectionInterface;
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
@@ -42,6 +43,9 @@ private:
 	TObjectPtr<UInputAction> ZoomAction;
 
 	UPROPERTY(EditAnywhere, Category = Input)
+	TObjectPtr<UInputAction> PossessAction;
+
+	UPROPERTY(EditAnywhere, Category = Input)
 	bool bCanRotate = true;
 	
 	UPROPERTY(EditAnywhere, Category = Input)
@@ -55,15 +59,19 @@ private:
 	UPROPERTY(EditAnywhere, Category = Input)
 	float MoveSpeed = 100.0f;
 	UPROPERTY(EditAnywhere, Category = Input)
-	float RotateSpeed = 100.0f;
+	float RotateSpeed = 25.0f;
 
 	void Move(const FInputActionValue& InputActionValue);
 	void Rotate(const FInputActionValue& InputActionValue);
 	void Zoom(const FInputActionValue& InputActionValue);
+	void Possess(const FInputActionValue& InputActionValue);
 	
 	void CursorTrace();
 
-	TScriptInterface<IEnemyInterface> LastActor;
-	TScriptInterface<IEnemyInterface> ThisActor;
+	TScriptInterface<IEnemyInterface> LastEnemyActor;
+	TScriptInterface<IEnemyInterface> ThisEnemyActor;
+
+	TScriptInterface<IPawnSelectionInterface> LastSelectedActor;
+	TScriptInterface<IPawnSelectionInterface> ThisSelectedActor;
 	
 };
