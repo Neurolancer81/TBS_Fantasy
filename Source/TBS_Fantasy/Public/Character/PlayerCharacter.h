@@ -21,7 +21,9 @@ public:
 
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
-	virtual void SelectPawn(AController* NewController) override;
+	virtual void SelectPawn() override;
+	virtual void HighlightActor() override;
+	virtual void UnHighlightActor() override;
 	
 private:
 	void InitAbilityActorInfo();
@@ -37,6 +39,9 @@ private:
 
 	UPROPERTY()
 	bool bIsSelected = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float YawRotationSpeed = 200.0f;
 	
 	
 };

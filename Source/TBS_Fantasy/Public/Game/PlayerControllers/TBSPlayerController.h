@@ -24,10 +24,12 @@ class TBS_FANTASY_API ATBSPlayerController : public APlayerController
 public:
 	ATBSPlayerController();
 	virtual void SetupInputComponent() override;
-	virtual void PlayerTick(float DeltaTime) override;
+	
+	
 
 protected:	
 	virtual void BeginPlay() override;
+	virtual void PlayerTick(float DeltaTime) override;
 
 private:
 	UPROPERTY(EditAnywhere, Category = Input)
@@ -67,6 +69,7 @@ private:
 	void Possess(const FInputActionValue& InputActionValue);
 	
 	void CursorTrace();
+	void SetSelectedPawn();
 
 	TScriptInterface<IEnemyInterface> LastEnemyActor;
 	TScriptInterface<IEnemyInterface> ThisEnemyActor;

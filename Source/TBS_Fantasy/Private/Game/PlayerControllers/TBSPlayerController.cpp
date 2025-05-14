@@ -28,6 +28,8 @@ void ATBSPlayerController::SetupInputComponent()
 		this, &ATBSPlayerController::Rotate);
 	EnhancedInputComponent->BindAction(ZoomAction, ETriggerEvent::Triggered,
 		this, &ATBSPlayerController::Zoom);
+	EnhancedInputComponent->BindAction(PossessAction, ETriggerEvent::Triggered,
+		this, &ATBSPlayerController::Possess);
 	
 }
 
@@ -36,6 +38,7 @@ void ATBSPlayerController::PlayerTick(float DeltaTime)
 	Super::PlayerTick(DeltaTime);
 
 	CursorTrace();
+	SetSelectedPawn();
 }
 
 void ATBSPlayerController::BeginPlay()
@@ -96,31 +99,31 @@ void ATBSPlayerController::Zoom(const FInputActionValue& InputActionValue)
 		
 	}
 	
-	
 }
 
 void ATBSPlayerController::Possess(const FInputActionValue& InputActionValue)
 {
-	FHitResult HitResult;
-	GetHitResultUnderCursor(ECC_Visibility, false, HitResult);
-	if (!HitResult.bBlockingHit) return;
-
-	LastSelectedActor = ThisSelectedActor;
-	ThisSelectedActor = HitResult.GetActor();
-
-	if (ThisSelectedActor != nullptr)
+	if (ThisSelectedActor)
 	{
-		ThisSelectedActor->SelectPawn(this);
+		APawn* SelectedPawn = Cast<APawn>(ThisSelectedActor.GetObject());
+		this->OnPossess(SelectedPawn);
+		ThisSelectedActor->SelectPawn();
+	
 	}
+	
 	
 }
 
 void ATBSPlayerController::CursorTrace()
 {
+	
 	FHitResult CursorHit;
 	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
 	if (!CursorHit.bBlockingHit) return;
 
+	/**
+	 * Enemy Interface Section
+	 **/
 	LastEnemyActor = ThisEnemyActor;
 	ThisEnemyActor = CursorHit.GetActor();
 
@@ -163,6 +166,56 @@ void ATBSPlayerController::CursorTrace()
 				// Case D: UnHighlight LastEnemyActor and Highlight ThisEnemyActor
 				LastEnemyActor->UnHighlightActor();
 				ThisEnemyActor->HighlightActor();
+			}
+			else
+			{
+				// Case E: Do nothing
+			}
+		}
+	}
+
+	/**
+	 * Pawn Selection Interface Section
+	 **/
+	
+	
+}
+
+void ATBSPlayerController::SetSelectedPawn()
+{
+	FHitResult CursorHit;
+	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
+	if (!CursorHit.bBlockingHit) return;
+	
+	LastSelectedActor = ThisSelectedActor;
+	ThisSelectedActor = CursorHit.GetActor();
+
+	if (LastSelectedActor == nullptr)
+	{
+		if (ThisSelectedActor == nullptr)
+		{
+			// Case A: Do Nothing
+		}
+		else
+		{
+			// Case B: Highlight this actor
+			ThisSelectedActor->HighlightActor();
+		}		
+	}
+	else
+	{
+		if (ThisSelectedActor == nullptr)
+		{
+			//Case C: Unhighlight last actor
+			LastSelectedActor->UnHighlightActor();
+		}
+		else
+		{
+			if (LastSelectedActor != ThisSelectedActor)
+			{
+				// Case D: UnHighlight LastSelectedActor and Highlight ThisSelectedActor
+				LastSelectedActor->UnHighlightActor();
+				ThisSelectedActor->HighlightActor();
 			}
 			else
 			{

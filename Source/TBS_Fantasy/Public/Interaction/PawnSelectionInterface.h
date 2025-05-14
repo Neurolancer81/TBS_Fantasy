@@ -22,6 +22,8 @@ class TBS_FANTASY_API IPawnSelectionInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual void SelectPawn(AController* NewController) = 0;
+	virtual void SelectPawn() = 0;
+	virtual void HighlightActor() = 0;
+	virtual void UnHighlightActor() = 0;
 	
 };

@@ -9,12 +9,13 @@
 #include "Game/PlayerControllers/TBSPlayerState.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "TBS_Fantasy/TBS_Fantasy.h"
 #include "UI/HUD/TBSHUD.h"
 
 APlayerCharacter::APlayerCharacter()
 {
 	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->RotationRate = FRotator(0, 400.f, 0);
+	GetCharacterMovement()->RotationRate = FRotator(0, YawRotationSpeed, 0);
 	GetCharacterMovement()->bConstrainToPlane = true;
 	GetCharacterMovement()->bSnapToPlaneAtStart = true;
 
@@ -25,9 +26,17 @@ APlayerCharacter::APlayerCharacter()
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetupAttachment(RootComponent);
 	SpringArm->TargetArmLength = SpringArmLength;
+	SpringArm->bUsePawnControlRotation = false;
+	SpringArm->bInheritPitch = false;
+	SpringArm->bInheritYaw = false;
+	SpringArm->bInheritRoll = false;
+	const FRotator SpringArmRotation = FRotator(-35.0f, 0.0f, 0.0f);
+	SpringArm->AddWorldRotation(SpringArmRotation);
 	
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
+
+	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	
 	
 }
@@ -49,16 +58,35 @@ void APlayerCharacter::OnRep_PlayerState()
 	InitAbilityActorInfo();
 }
 
-void APlayerCharacter::SelectPawn(AController* NewController)
+void APlayerCharacter::SelectPawn()
 {
-	AController* ThisPlayerController = this->GetController();
-	if (ThisPlayerController != nullptr && NewController != nullptr)
-	{
-		if (ThisPlayerController != NewController)
-		{
-			APlayerCharacter::PossessedBy(NewController);
-		}
-	}
+	APlayerController* ThisPlayerController = Cast<APlayerController>(GetController());
+	if (!ThisPlayerController) {return;}
+	this->ReceivePossessed(ThisPlayerController);
+	bIsSelected = true;
+	
+	// APawn* SelectedPawn = Cast<APawn>(this);
+	// ThisPlayerController->SetPawn(this);
+	// APlayerCharacter::PossessedBy(ThisPlayerController);
+	
+	
+}
+
+void APlayerCharacter::HighlightActor()
+{
+	GetMesh()->SetRenderCustomDepth(true);
+	GetMesh()->SetCustomDepthStencilValue(CUSTOM_DEPTH_BLUE);
+	Weapon->SetRenderCustomDepth(true);
+	Weapon->SetCustomDepthStencilValue(CUSTOM_DEPTH_BLUE);
+	Shield->SetRenderCustomDepth(true);
+	Shield->SetCustomDepthStencilValue(CUSTOM_DEPTH_BLUE);
+}
+
+void APlayerCharacter::UnHighlightActor()
+{
+	GetMesh()->SetRenderCustomDepth(false);
+	Weapon->SetRenderCustomDepth(false);
+	Shield->SetRenderCustomDepth(false);
 }
 
 void APlayerCharacter::InitAbilityActorInfo()
